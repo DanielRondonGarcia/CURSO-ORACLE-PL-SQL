@@ -1,4 +1,4 @@
-![ORACLE PL/SQL](/images/ORACLE.svg?raw=true)
+![ORACLE PL/SQL](/ORACLE.svg?raw=true)
 
 
 
