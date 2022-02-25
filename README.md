@@ -1,4 +1,4 @@
-![ORACLE PL/SQL](/ORACLE.svg?raw=true)
+![ORACLE PL/SQL](/images/ORACLE.svg?raw=true)
 
 
 
@@ -12,7 +12,7 @@
 
 *   [Estructura de Procedimiento](#Estructura-de-Procedimiento)
 
-*   [Estructura de Función](#Estructura-de-Función)
+*   [Funciones](#Funciones)
 
 *   [Reglas y Convenciones del Lenguaje](#Reglas-y-Convenciones-del-Lenguaje)
 
@@ -41,6 +41,12 @@
 *   [GOTO y etiquetas](#GOTO-y-etiquetas)
 
 *   [Cursores](#Cursores)
+
+*   [Variables compuestas](#Variables-compuestas)
+
+*   [Paquetes](#Paquetes)
+
+*   [Otros](#Otros)
 
 
 
@@ -96,10 +102,120 @@ EXCEPTION
 END;
 ```
 
+### ***Script BD Libros***
+
+```sql
+DROP TABLE libros; 
+```
+
+```sql
+CREATE TABLE libros (
+    idlibro NUMBER(12) NOT NULL,
+    titulo  VARCHAR2(20) NOT NULL,
+    autor   VARCHAR2(20) NOT NULL,
+    precio  NUMBER(20) NOT NULL,
+    fecha   DATE NOT NULL,
+    CONSTRAINT pklibros PRIMARY KEY ( idlibro )
+);
+CREATE TABLE tabla1 (
+    titulo VARCHAR2(40),
+    precio NUMBER(6, 2)
+);
+```
+
+```sql
+CREATE SEQUENCE AUMENTARLIBRO; 
+```
+
+```sql
+INSERT INTO libros (
+    idlibro,
+    titulo,
+    autor,
+    precio,
+    fecha
+)
+    SELECT
+        aumentarlibro.NEXTVAL,
+        'Titulo ' || to_char(aumentarlibro.CURRVAL),
+        'Autor ' || to_char(aumentarlibro.CURRVAL),
+        round(dbms_random.value(100000, 3000000)),
+        to_date('2021/'
+                || round(dbms_random.value(1, 12))
+                || '/'
+                || round(dbms_random.value(1, 27))
+                || ' 21:02:44', 'yyyy/mm/dd hh24:mi:ss')
+    FROM
+        dual
+    CONNECT BY
+        level <= 100;
+```
+
+### -Ejemplo - APLICAR UN 5% DE DCTO A TODOS LOS LIBROS CON UN PROCEDIMIENTO ALMACENADO 
+```sql
+CREATE OR REPLACE PROCEDURE aumenta_precio AS
+BEGIN
+    UPDATE libros
+    SET
+        precio = precio + ( precio *.01 );
+
+END aumenta_precio;
+```
+Probamos
+```sql
+execute aumenta_precio;
+```
+
+### -Ejemplo (AUDITORÍA) - SELECCIONA UN AUTOR Y GUARDA ESE CAMPO EN LA TABLA1 CON EL TITULO Y EL PRECIO 
+```sql
+CREATE OR REPLACE PROCEDURE autorlibro (atitulo IN VARCHAR2) AS
+    v_autor VARCHAR2(255);
+BEGIN
+    SELECT autor INTO v_autor
+    FROM libros
+    WHERE titulo = atitulo;
+
+    INSERT INTO tabla1
+        SELECT titulo, precio
+        FROM libros
+        WHERE autor = v_autor;
+
+END autorlibro;
+```
+Probamos
+```sql
+execute autorlibro('Titulo 7'); 
+```
+Miramos la tabla1
+```sql
+select * from tabla1;
+```
+
+### -Ejemplo - ACTUALIZAR SUELDO DE LOS EMPLEADOS QUE TENGAS MÁS DE 10 AÑOS EN LA EMPRESA UN 100% POR PARÁMETROS DE ENTRADA ([Script empleados,productos](#Script-empleados,productos))
+
+```sql
+CREATE OR REPLACE PROCEDURE aumentasueldo (anio IN NUMBER, porcentaje IN NUMBER ) AS
+BEGIN
+    UPDATE empleados
+    SET
+        sueldo = sueldo + ( sueldo * porcentaje / 100 )
+    WHERE ( EXTRACT(YEAR FROM current_date) - EXTRACT(YEAR FROM fechaingreso) ) > anio;
+
+END aumentasueldo;
+```
+
+```sql
+execute aumentasueldo(10,100); 
+```
+Probamos
+```sql
+select * from empleados;
+```
 
 [🔝 Volver al índice](#índice-de-contenido)
 
-### **Estructura de Función**
+
+### **Funciones**
 
 ```sql
 FUNCTION nombre 
@@ -112,6 +228,42 @@ BEGIN
  Sección de Excepciones
 END;
 ```
+
+### -Ejemplo 1
+```sql
+create or replace function f_prueba(valor number)
+return number
+is
+ begin
+   return valor*2;
+end;
+```
+Prueba de la función
+```sql
+select f_prueba(2) as total from dual;
+```
+
+### -Ejemplo 2
+```sql
+create or replace function f_costo(valor number)
+return varchar
+is
+  costo varchar(20);
+  begin
+    costo:='';
+    if valor<=500 then
+    costo:='economico';
+    else costo:='costoso';
+    end if;
+    return costo;
+end;
+```
+Prueba de la función ([Script BD Libros](#Script-BD-Libros))
+```sql
+select titulo, autor, precio, f_costoso(precio) from libros;
+```
+
+
 
 [🔝 Volver al índice](#índice-de-contenido)
 
@@ -696,6 +848,7 @@ Para hacer más legible el bloque de ejecución con manejadores de excepciones c
 
 *   Útiles para las consultas que devuelven más de una fila.
 *   Son declarados y nombrados por el programador, y manipulados por medio de sentencias específicas en las acciones ejecutables del bloque.
+*   Son una gran herramienta para generar reportes.
 
 ### Control de Cursores
 1. Crear un área SQL especifica **DECLARE**
@@ -707,6 +860,7 @@ Para hacer más legible el bloque de ejecución con manejadores de excepciones c
 ### Tipos de cursores
 *   Cursores implícitos
 *   Cursores explícitos
+    *   Se utiliza cuando una consulta devuelve un conjunto de registros y ocasionalmente se utilizan tambien en consultas que devuelven un único registro.
 
 Sintaxis:
 ```sql
@@ -741,11 +895,11 @@ Apertura del Cursor:
 OPEN nombre_cursor;
 ```
 
-
-### -Ejemplo CURSORES IMPLICITOS
-Codigo incial*
+### ***Script empleados,productos***
+Codigo incial para el ejemplo*
 ```sql
 DROP TABLE empleados;
+DROP TABLE productos;
 ```
 ```sql
  CREATE TABLE empleados(
@@ -754,16 +908,35 @@ DROP TABLE empleados;
   nombre VARCHAR2(30),
   domicilio VARCHAR2(30),
   seccion VARCHAR2(20),
-  sueldo NUMBER(8,2)
+  sueldo NUMBER(8,2),
+  fechaingreso DATE
  );
+ CREATE TABLE productos (
+codigo INT NOT NULL PRIMARY KEY,
+nombre VARCHAR2(100) NOT NULL,
+precio NUMBER(6,2) NOT NULL,
+codigo_fabricante INT NOT NULL);
 ```
 ```sql
- INSERT INTO empleados VALUES('22222222','Acosta','Ana','Avellaneda 11','Secretaria',1800);
- INSERT INTO empleados VALUES('23333333','Bustos','Betina','Bulnes 22','Gerencia',5000);
- INSERT INTO empleados VALUES('24444444','Caseres','Carlos','Colon 333','Contabilidad',3000);
- INSERT INTO empleados VALUES('32323255','Gonzales','Miguel','Calle 4ta No.90','Contabilidad',8000);
- INSERT INTO empleados VALUES('56565555','Suarez','Tomas','Atarazana 78','Cobros',1500);
+ INSERT INTO empleados VALUES('22222222','Acosta','Ana','Avellaneda 11','Secretaria',1800,to_date('18/10/1980','dd/mm/yyyy'));
+ INSERT INTO empleados VALUES('23333333','Bustos','Betina','Bulnes 22','Gerencia',5000, to_date('12/05/1998','dd/mm/yyyy'));
+ INSERT INTO empleados VALUES('24444444','Caseres','Carlos','Colon 333','Contabilidad',3000, to_date('25/08/1990','dd/mm/yyyy'));
+ INSERT INTO empleados VALUES('32323255','Gonzales','Miguel','Calle 4ta No.90','Contabilidad',8000,to_date('05/05/2000','dd/mm/yyyy'));
+ INSERT INTO empleados VALUES('56565555','Suarez','Tomas','Atarazana 78','Cobros',1500,to_date('24/10/2005','dd/mm/yyyy'));
+ 
+INSERT INTO productos VALUES(1, 'Disco duro SATA· 1TB', 86.99, 5);
+INSERT INTO productos VALUES(2 , 'Memoria RAM DDR4 8GB', 120, 6);
+INSERT INTO productos VALUES(3, 'DISCO SSD 1 TB', 150.99, 4);
+INSERT INTO productos VALUES(4, 'GEFORCE GTX 1050Ti', 185, 7);
+INSERT INTO productos VALUES(5, 'GEFORCE GTX 1080TI', 755, 6);
+INSERT INTO productos VALUES(6, 'Monitor 24 LED Full HD', 202, 1);
+INSERT INTO productos VALUES(7, 'Monitor 27 LED Full HD', 245.99, 1);
+INSERT INTO productos VALUES(8, 'Portátil Yoga 520', 559, 2);
+INSERT INTO productos VALUES(9, 'Portátil Ideapd 320', 444, 2);
+INSERT INTO productos VALUES(10, 'Impresora HP Deskjet 3720', 59.99, 3);
+INSERT INTO productos VALUES(11, 'Impresora HP Laserjet Pro M26nw', 180, 3);
 ```
+### -Ejemplo `CURSORES IMPLICITOS`
 Cursor
 ```sql
 DECLARE
@@ -779,11 +952,283 @@ BEGIN
   END IF;
 END;
 ```
+
+#
+
+### -Ejemplo `CURSORES EXPLICITOS`
+```sql
+DECLARE
+    v_docu empleados.documento%TYPE;
+    v_nom empleados.nombre%TYPE;
+    v_ape emleados.apellido%TYPE;
+    v_suel empleados.sueldo%TYPE;
+  CURSOR c_cursor2 is
+     SELECT documento, nombre,apellido, sueldo I
+     FROM empleados
+     WHERE documento=22222222;
+BEGIN
+ OPEN c_cursor2;
+  FETCH c_cursor2 into v_docu,v_nom,v_ape,v_suel;
+  CLOSE c_cursor2;
+  dbms_output.put_line('Documento: ' || v_docu);
+  dbms_output.put_line('Nombre:' ||v_nom);
+  dbms_output.put_line('Apellido: ' ||v_ape);
+  dbms_output.put_line('Sueldo: '||v_suel);
+END;
+```
+### -Ejemplo `CURSORES EXPLICITOS` 2
+A medida que vaya recorriendo toda la tabal de empleados, va a ir tomando 
+cada campo de la tabla y a través de unasalida de datos, va a tomar nuestra variable de `%ROWTYPE`.campo_tabla que se visualice en la salida de datos.
+
+```sql
+DECLARE
+    v_docu empleados.documento%TYPE;
+    v_nom empleados.nombre%TYPE;
+    v_ape emleados.apellido%TYPE;
+    v_suel empleados.sueldo%TYPE;
+  CURSOR c_cursor2 is
+     SELECT documento, nombre,apellido, sueldo I
+     FROM empleados
+     WHERE documento=22222222;
+BEGIN
+ OPEN c_cursor2;
+  FETCH c_cursor2 INTO v_docu,v_nom,v_ape,v_suel;
+  CLOSE c_cursor2;
+  DBMS_OUTPUT.PUT_LINE('Documento: ' || v_docu);
+  DBMS_OUTPUT.PUT_LINE('Nombre:' ||v_nom);
+  DBMS_OUTPUT.PUT_LINE('Apellido: ' ||v_ape);
+  DBMS_OUTPUT.PUT_LINE('Sueldo: '||v_suel);
+END;
+```
+
+### -Ejemplo `CURSORES EXPLICITOS` ACTUALIZANDO DATOS DE UNA TABLA SQL
+*   Cursor que nos permita recorrer todos los registros de una tabla y que nos muestre los datos por consola
+
+```sql
+BEGIN
+ UPDATE empleados set sueldo = 10000
+ WHERE documento = '23333333';
+ IF SQL%notfound then
+  DBMS_OUTPUT.PUT_LINE('NO EXISTE REGISTRO PARA MODIFICAR');
+ END IF;
+END;
+```
+### -Ejemplo `FOR UPDATE Y WHERE CURRENT OF`
+### FOR UPDATE
+*   El bloqueo explícito le permite denegar el acceso mientras dura una transacción.
+*   Bloquee las filas antes de la actualización o supresión.
+*   La cláusula FOR UPDATE es la última cláusula de una sentencia SELECT, incluso después del ORDER BY.
+*   NOWAIT devuelve un error de Oracle si las filas han sido bloqueadas por otra sesión, de lo contrario se espera.
+*   Donde nombre_columna es una columna o lista de columnas de la tabla sobre la que se realiza la consulta (la/s que se va/n a modificar).
+#
+### WHERE CURRENT OF
+*   Incluya la cláusula FOR UPDATE en la definición del cursor para bloquear las filas.
+*   Especifique WHERE CURRENT OF en la sentencia UPDATE o DELETE para referirse a la fila actual del cursor.
+```sql
+DECLARE
+-- Variable para añadir estos créditos al total de cada estudiante
+V_Creditos Clases.num_creditos%TYPE;
+
+-- Cursor que selecciona los estudiantes matriculados en 3º de Informática
+CURSOR c_EstudiantesRegistrados IS
+    SELECT *
+        FROM Estudiantes
+    WHERE Id_Estudiante IN (SELECT Id_Estudiante
+                            FROM Estudiante_Registrado
+                            WHERE Departamento=‘INF’AND Curso=‘3’)
+FOR UPDATE OF Creditos_Actuales;
+
+BEGIN
+    FOR V_Estudiantes IN C_EstudiantesRegistrados LOOP
+    -- Selecciona los créditos de 3º de Informática
+        SELECT num_creditos
+            INTO V_Creditos
+        FROM Clases
+        WHERE Departamento=‘INF’
+        AND Curso='3';
+    -- Actualiza la fila que acaba de recuperar con el cursor
+        UPDATE Estudiantes
+            Set Creditos_Actuales=Creditos_Actuales+V_Creditos
+            WHERE CURRENT OF C_EstudiantesRegistrados;
+    END LOOP;
+COMMIT;
+END;
+/
+```
+### -Ejemplo `CURSORES EXPLICITOS CON PARAMETROS`
+```sql
+DECLARE
+    v_nom empleados.nombre%TYPE;
+    v_sec empleados.seccion%TYPE;
+    CURSOR c_empleados ( doc empleados.documento%TYPE )
+        IS
+        SELECT
+            nombre, seccion
+        FROM empleados
+        WHERE documento = doc;
+BEGIN
+    OPEN c_empleados(56565555);
+    LOOP
+        FETCH c_empleados INTO
+            v_nom, v_sec;
+        EXIT WHEN c_empleados%notfound;
+        dbms_output.put_line('Empleado: '|| v_nom|| ', Sección: '|| v_sec);
+    END LOOP;
+    CLOSE c_empleados;
+END;
+```
+### -Ejemplo `REF CURSORS`
+*   Puede apuntar o hacer refrencia a un resultado de un cursor normal
+```sql
+create or replace function f_datoemepleados (v_valor1 in number, v_valor2 in number)
+return sys_refcursor
+is
+ v_ref sys_refcursor;
+begin
+  open v_ref for select * from empleados
+ where documento in (v_valor1,v_valor2);
+  return v_ref;
+end;
+```
+Probamos la función
+```sql
+SELECT f_datoemepleados(22222222,24444444) from dual;
+```
+Ver la infromación en forma de tabla
+```sql
+var rc1 refcursor
+exec :rc1:=f_datoemepleados(22222222,23333333);
+print rc1;
+```
+
 [🔝 Volver al índice](#índice-de-contenido)
 
+### **Variables compuestas**
+Guardan una fila de una tabla
+```sql
+DECLARE
+  reg_productos productos%rowtype;
+BEGIN
+  SELECT * INTO REG_PRODUCTOS FROM PRODUCTOS
+  WHERE codigo = 3;
+  dbms_output.put_line('CARACTERISTICA DEL PRODUCTO');
+  dbms_output.put_line('Codigo de producto: '|| reg_productos.codigo);
+  dbms_output.put_line('Articulo: ' || reg_productos.nombre);
+  dbms_output.put_line('Precio: ' || reg_productos.precio);
+  dbms_output.put_line('Serial: '|| reg_productos.codigo_fabricante);
+END;
+```
 
-### **prácticas**
+### -Ejemplo `VARIABLE COMPUESTA CON CURSOR`
+*   Puede apuntar o hacer refrencia a un resultado de un cursor normal
+```sql
+declare
+  cursor cu_productos is
+  select * from productos;
+  var_productos cu_productos%rowtype;
+begin
+  open cu_productos;
+  loop
+    fetch cu_productos into var_productos;
+    exit when cu_productos%notfound;
+    dbms_output.put_line(var_productos.codigo ||' '|| var_productos.nombre);
+  end loop;
+end;
+```
 
+[🔝 Volver al índice](#índice-de-contenido)
 
+### **Paquetes**
+Son un grupo lógico de objetos de la base de datos tales como:
+*   Registros de datos PL/SQL
+*   Variables
+*   Estructura de datos
+*   Excepciones
+*   Subprogramas
+*   Procedimientos
+*   Funciones
+
+Estos objetos se relacionan entre sí, encapsulados y convertidos en una unidad dentro de la base de datos.
+
+```sql
+CREATE OR REPLACE PACKAGE los_productos AS
+PROCEDURE caracteristicas(v_codigo productos.codigo%TYPE);
+END los_productos;
+```
+```sql
+CREATE OR REPLACE PACKAGE BODY los_productos AS
+PROCEDURE caracteristicas(v_codigo productos.codigo%TYPE) IS
+  v_producto productos.nombre%TYPE;
+  v_precio productos.precio%TYPE;
+BEGIN
+  SELECT nombre, precio INTO v_producto, v_precio
+  FROM productos WHERE codigo = v_codigo;
+  dbms_output.put_line('Articulo: ' || v_producto);
+  dbms_output.put_line('Precio: ' ||v_precio);
+  END caracteristicas;
+END los_productos;
+```
+```sql
+BEGIN
+ los_productos.caracteristicas(3);
+END;
+```
+
+[🔝 Volver al índice](#índice-de-contenido)
+
+### **Otros**
+
+## Para poder ver la ejecucion en la pantalla
+```sql
+set serveroutput on;
+```
+## Ejecutar el siguiente script para poder ejecutar scripts
+```sql
+alter session set "_ORACLE_SCRIPT"=true;
+```
+## Cómo arrancar el listener de Oracle
+
+```sql
+lsnrctl 
+```
+Comprobar su estado: 
+```sql
+status
+```
+Parar el listener: 
+```sql
+stop
+```
+Levantar el listener: 
+```sql
+start
+```
+
+## Creación de usuario y permisos
+```CMD
+SQLPLUS
+```
+```sql
+CONN /AS SYSDBA
+```
+```sql
+CREATE USER usuario IDENTIFIED BY clave;
+```
+```sql
+GRANT CONNECT,DBA TO usuario;
+```
+## ora - 12514 and ora - 12505 tns listener error fixed ✅
+```CMD
+SQLPLUS
+```
+```sql
+CONN /AS SYSDBA
+```
+```sql
+alter system set LOCAL_LISTENER='(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=1521))' scope=both;
+```
+```sql
+alter system register;
+```
 
 [🔝 Volver al índice](#índice-de-contenido)
