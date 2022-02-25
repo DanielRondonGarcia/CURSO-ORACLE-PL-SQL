@@ -28,7 +28,7 @@
 
 *   [Constantes](#Constantes)
 
-*   [Atributos %TYPE y %ROWTYPE](#Atributos-%TYPE-y-%ROWTYPE)
+*   [Atributos %TYPE y %ROWTYPE](#Atributos-TYPE-y-ROWTYPE)
 
 *   [REGISTROS](#REGISTROS)
 
