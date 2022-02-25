@@ -10,7 +10,13 @@
 
 *   [Estructura Bloques Anónimos](#Estructura-Bloques-Anónimos)
 
+*   [Secuencias](#Secuencias)
+
 *   [Estructura de Procedimiento](#Estructura-de-Procedimiento)
+
+*   [Triggers o Disparadores](#Triggers-o-Disparadores)
+    *   [TRIGGERS `:NEW :OLD`](#TRIGGERS-:NEW-:OLD)
+    *   [Elevar `Excepciones` en el cuerpo del Disparados](#Elevar-Excepciones-en-el-cuerpo-del-Disparados)
 
 *   [Funciones](#Funciones)
 
@@ -46,8 +52,9 @@
 
 *   [Paquetes](#Paquetes)
 
-*   [Otros](#Otros)
+*   [Excepciones](#Excepciones)
 
+*   [Otros](#Otros)
 
 
 ### **¿Qué es PL/SQL?**
@@ -58,7 +65,9 @@ Lenguaje de procesamiento procedimental, su objetivo es interactuar con la Base 
 *   Todos los programas PL/SQL están compuestos por bloques, que pueden definirse de forma secuencial o estar anidados.
 *   Normalmente cada bloque realiza una unidad lógica de trabajo en el programa, separando así unas tareas de otras.
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Estructura**
 
@@ -74,7 +83,9 @@ Hay diferentes tipos de bloques:
 *   **Sección Ejecutable**: Donde se lleva a cabo el trabajo del bloque. En esta sección pueden aparecer órdenes SQL, DDL, DML como órdenes procedimentales.
 *   **Sección Errores**: El código de esta sección no se ejecutará a menos que ocurra un error.
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Estructura Bloques Anónimos**
 
@@ -88,29 +99,110 @@ EXCEPTION
 END;
 ```
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
+
+### **Secuencias**
+Una secuencia sirve para generar automáticamente números distintos. Se utilizan para generar valores para campos que se utilizan como clave forzada (claves cuyo valor no interesa, sólo sirven para identificar los registros de una tabla).
+
+Sintaxis:
+```sql
+CREATE SEQUENCE nombre_secuencia
+[INCREMENT BY n]
+[START WITH n]
+[{MAXVALUE n|NOMAXVALUE}]
+[{MINVALUE n|NOMINVALUE}]
+[{CYCLE|NOCYCLE}]
+```
+Donde
+| PARAMETRO | DESCRIPCIÓN |
+|:---------:|:-----------:|
+|`INCREMENT BY`|Indica cuánto se incrementa la secuencia cada vez que se usa. `Por defecto se incrementa de uno en uno`|
+|`START WITH`|Indica el valor inicial de la secuencia `por defecto 1`|
+|`MAXVALUE`|Máximo valor que puede tomar la secuencia. Si no se toma NOMAXVALUE que permite llegar hasta el 10^27|
+|`MINVALUE`|Mínimo valor que puede tomar la secuencia. Por defecto -10^26|
+|`CYCLE`|Hace que la secuencia vuelva a empezar si se ha llegado al máximo valor.|
+#
+Uso de la secuencia
+Los métodos `NEXTVAL` y `CURRVAL` se utilizan para obtener el siguiente número y el valor actual de la secuencia respectivamente.
+
+Ejemplo de uso
+```sql
+SELECT numeroPlanta.NEXTVAL FROM DUAL;
+```
+MODIFICAR SECUENCIAS
+Se pueden modificar las secuencias, pero la modificación sólo puede afectar a los futuros valores de la secuencia, no a los ya utilizados. Sintaxis:
+```sql
+ALTER SEQUENCE secuencia
+[INCREMENT BY n]
+[START WITH n]
+[{MAXVALUE n|NOMAXVALUE}]
+[{MINVALUE n|NOMINVALUE}]
+[{CYCLE|NOCYCLE}]
+```
+
+BORRAR SECUENCIA
+```sql
+DROP SEQUENCE nombre_secuencia;
+```
+-Ejemplo
+```sql
+CREATE SEQUENCE s_cliente
+INCREMENT BY 1
+START WITH 1
+MAXVALUE 99999999999
+```
+```sql
+INSERT INTO clientes(cliente, nombre_corto, fecha_creacion, usuario) VALUES(s_cliente.NEXTVAL, 'Daniel', sysdate, f_usuario);
+```
+
+
+#
+[🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Estructura-de-Procedimiento**
+Un procedimiento PL/SQL es similar a los procedimientos de otros lenguajes de programación. Es un bloque con nombre que tiene la misma estructura que los bloques anónimos.
 
+Sintaxis:
 ```sql
-PROCEDURE 'nombre' IS
-    'Sección Declarativa'
+CREATE [OR REPLACE] PROCEDURE nombre_procedimiento
+       [ (argumento [ { IN | OUT| IN OUT}]tipo,
+      argumento [ { IN | OUT| IN OUT}] tipo)]{ IS | AS}
+[SECCIÓN DE DECLARACIÓN DE VARIABLES SIN palabra clave DECLARE]
 BEGIN
-    'Sección Ejecutable'
-EXCEPTION
-    'Sección de Excepciones'
-END;
+      cuerpo_procedimiento
+[EXCEPTION]
+END [nombre_procedimiento];
 ```
+Para borrar un procedimiento:
+```sql
+DROP PROCEDURE nombre_procedimiento;
+```
+
+Los parámetros formales: `IN`, `OUT` o `IN OUT`.
+*   Por defecto, el modo `IN`
+
+Diferencias:
+*   `IN`: El valor del parámetro se pasa al procedimiento cuando éste es invocado. Dentro del procedimiento el parámetro formal se considera como de solo lectura, y `no` puede ser cambiado. Cuando termina el procedimiento, y se devuelve el control al entorno que realizó la invocación, el parámetro no sufre cambios.
+*   `OUT`: Se ignora cualquier valor que tenga el parámetro cuando se llama al procedimiento. Dentro del procedimiento, el parámetro formal se considera como de solo escritura, `no` puede ser leído, sino que tan solo pueden asignársele valores. Cuando termina el procedimiento y se devuelve el control al entorno que realizó la llamada, los contenidos del procedimiento formal se asignan al parámetro OUT.
+*   `IN OUT`: Este modo es una combinación de IN y OUT. El valor del parámetro se pasa al procedimiento cuando éste es invocado: Dentro del procedimiento, el parámetro puede ser tanto leído como escrito. Cuando termina el procedimiento y se devuelve el control al entorno que realizó la llamada, los contenidos del parámetro se asignan al parámetro IN OUT.
 
 ### ***Script BD Libros***
 
 ```sql
-DROP TABLE libros; 
+DROP TABLE libros;
+DROP TABLE tabla1; 
+DROP TABLE control; 
+DROP TABLE auditoria_libros; 
+DROP TABLE ofertas; 
 ```
 
 ```sql
 CREATE TABLE libros (
     idlibro NUMBER(12) NOT NULL,
+    codigo number(6),
     titulo  VARCHAR2(20) NOT NULL,
     autor   VARCHAR2(20) NOT NULL,
     precio  NUMBER(20) NOT NULL,
@@ -121,6 +213,20 @@ CREATE TABLE tabla1 (
     titulo VARCHAR2(40),
     precio NUMBER(6, 2)
 );
+CREATE TABLE control (
+    usuario VARCHAR2(40),
+    fecha DATE
+);
+create table auditoria_libros( 
+  usuario varchar2(30), 
+  fecha date 
+);
+ create table ofertas(
+  codigo number(6),
+  precio number(6,2),
+  usuario varchar2(20),
+  fecha date
+ );
 ```
 
 ```sql
@@ -128,30 +234,22 @@ CREATE SEQUENCE AUMENTARLIBRO;
 ```
 
 ```sql
-INSERT INTO libros (
-    idlibro,
-    titulo,
-    autor,
-    precio,
-    fecha
-)
-    SELECT
-        aumentarlibro.NEXTVAL,
-        'Titulo ' || to_char(aumentarlibro.CURRVAL),
+INSERT INTO libros (idlibro,codigo,titulo,autor,precio,fecha)
+    SELECT aumentarlibro.NEXTVAL,
+        round(dbms_random.value(0, 9999)),
+        'Titulo ' || to_char(aumentarlibro.CURRVAL),           
         'Autor ' || to_char(aumentarlibro.CURRVAL),
-        round(dbms_random.value(100000, 3000000)),
+        round(dbms_random.value(0, 3000000)),
         to_date('2021/'
                 || round(dbms_random.value(1, 12))
                 || '/'
                 || round(dbms_random.value(1, 27))
                 || ' 21:02:44', 'yyyy/mm/dd hh24:mi:ss')
-    FROM
-        dual
-    CONNECT BY
-        level <= 100;
+    FROM dual
+    CONNECT BY level <= 100;
 ```
 
-### -Ejemplo - APLICAR UN 5% DE DCTO A TODOS LOS LIBROS CON UN PROCEDIMIENTO ALMACENADO 
+##### -Ejemplo - APLICAR UN 5% DE DCTO A TODOS LOS LIBROS CON UN PROCEDIMIENTO ALMACENADO 
 ```sql
 CREATE OR REPLACE PROCEDURE aumenta_precio AS
 BEGIN
@@ -166,7 +264,7 @@ Probamos
 execute aumenta_precio;
 ```
 
-### -Ejemplo (AUDITORÍA) - SELECCIONA UN AUTOR Y GUARDA ESE CAMPO EN LA TABLA1 CON EL TITULO Y EL PRECIO 
+##### -Ejemplo (AUDITORÍA) - SELECCIONA UN AUTOR Y GUARDA ESE CAMPO EN LA TABLA1 CON EL TITULO Y EL PRECIO 
 ```sql
 CREATE OR REPLACE PROCEDURE autorlibro (atitulo IN VARCHAR2) AS
     v_autor VARCHAR2(255);
@@ -191,7 +289,7 @@ Miramos la tabla1
 select * from tabla1;
 ```
 
-### -Ejemplo - ACTUALIZAR SUELDO DE LOS EMPLEADOS QUE TENGAS MÁS DE 10 AÑOS EN LA EMPRESA UN 100% POR PARÁMETROS DE ENTRADA ([Script empleados,productos](#Script-empleados,productos))
+##### -Ejemplo - ACTUALIZAR SUELDO DE LOS EMPLEADOS QUE TENGAS MÁS DE 10 AÑOS EN LA EMPRESA UN 100% POR PARÁMETROS DE ENTRADA ([Script empleados,productos](#Script-empleados,productos))
 
 ```sql
 CREATE OR REPLACE PROCEDURE aumentasueldo (anio IN NUMBER, porcentaje IN NUMBER ) AS
@@ -212,8 +310,295 @@ Probamos
 select * from empleados;
 ```
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
+### **Triggers o Disparadores**
+
+*   Tipos de Disparadores:
+    *   DML sobre tablas (Insert, Delete, Update)
+    *   Disparadores INSTEAD OF sobre vistas
+    *   Disparadores del sistema sobre la BD o el Esquema.
+*   Se ejecuta de manera implícita ante eventos:
+    *   DML sobre tablas (Insert, Delete, Update)
+    *   DDL (Create, Alter, Drop) (Actualizado con Oracle 9i)
+    *   Operaciones de la BD (ServerError, Logon, Logoff, Startup, Shutdown)
+
+Aplicaciones
+*   Restricciones de Integridad complejas.
+    *   IMPORTANTE: No se deben usar para garantizar el cumplimiento de las restricciones de integridad a nivel de esquema !!! (el esquema ha de contener toda la semántica que permita sin utilizar disparadores)
+*   Auditoría: Registro de los cambios realizados y quién los realizó
+*   Aviso automático a otros programas de llevar a cabo una determinada acción
+*   Actualización en cascada
+
+Utilización
+*   Identificador único para cada elemento.
+*   Tamaño del disparador: no superar los 32K (si es necesario crear objetos para llamar dentro del trigger)
+*   Operaciones en el cuerpo del disparador: DML. (Insert, Delete, Update)
+*   No disparadores recursivos: Agotan memoria.
+*   Compilación cada vez que se ejecutan: más lentos.
+
+Sintaxis
+
+`Creación: (se activan al crearlos)`
+```sql
+CREATE [OR REPLACE] TRIGGER <nombre_disparador>
+    {BEFORE | AFTER} evento ON referencia_tabla
+    [ FOR EACH ROW [WHEN condición_evento]]
+cuerpo_disparador;
+```
+
+`Eliminación:`
+```sql
+DROP TRIGGER nombre_disparador;
+```
+
+`Activación/Desactivación:`
+```sql
+ALTER TRIGGER nombre_disparador {DISABLE | ENABLE};
+
+ALTER TABLE nombre_tabla
+{ENABLE | DISABLE} ALL TRIGGERS;
+```
+
+*   `Evento:`
+    *   Tipo de orden DML sobre una tabla que provoca la activación del disparador {`INSERT` | `DELETE` | `UPDATE` [OF <lista de columnas>]}. La lista de columnas sólo tiene sentido en el evento UPDATE
+*   `Nivel`:
+    *   FOR EACH ROW: disparadores con nivel de fila. Se activan una vez por cada fila afectada por el evento
+    *   FOR EACH STATEMENT: disparadores con nivel de orden. Se activan sólo una vez (antes o después de la orden).
+*   When:
+    *   Sólo tiene sentido a nivel de fila. La condición se evalúa (true o false). No se pueden utilizar consultas anidadas.
+* CONSTRAINS O RESTRICCIONES:
+    *   Un disparador no puede emitir ninguna orden de control de transacciones (`COMMIT`, `ROLLBACK` o `SAVEPOINT`)
+    *   Ningún procedimiento o función llamada por el disparador puede emitir órdenes de control de transacciones.
+    *   No puede contener ninguna declaración de variables `LONG` o `LONG RAW`
+    *   Restricciones en tablas a las que se puede acceder (Tablas Mutantes)
+    *   No puede modificar las columnas de clave primaria
+
+Temporalidad del evento : `AFTER/BEFORE`
+*   BEFORE: `Ejecutan la acción asociada antes de que la sentencia sea ejecutada`
+    *   Decidir si la acción debe realizarse o no
+    *   Utilizar valores alternativos para la sentencia
+Sintaxis:
+```sql
+CREATE TRIGGER NombreTrigger
+    BEFORE Insert ON NombreTabla ….
+```
+*   AFTER: `Ejecutan la acción asociada después de que se haya ejecutado la sentencia`
+Sintaxis:
+```sql
+CREATE TRIGGER NombreTrigger
+    AFTER Insert ON NombreTabla ….
+```
+
+Scrip incial*
+
+```sql
+--borrar tablas (si existen)
+ drop table libros;
+ drop table control;
+
+ --crear tablas
+ create table libros(
+  codigo number(6),
+  titulo varchar2(40),
+  autor varchar2(30),
+  editorial varchar2(20),
+  precio number(6,2)
+ );
+ create table control(
+  usuario varchar2(30),
+  fecha date
+ );
+```
+
+-Ejemplo
+```sql
+create or replace trigger tr_ingresolibros
+before insert
+on libros
+begin
+ insert into control values(user, sysdate);
+  end tr_ingresolibros;
+```
+ingresamos datos y provamos
+```sql
+insert into libros values(100, 'Uno','Richard Bach','Planeta',25);
+insert into libros values(102, 'Matematica estas ahi','Paenza','Nuevo siglo',12);
+select * from control;
+```
+
+-Ejemplo 1 `FOR EACH ROW / BEFORE INSERT` [Script empleados,productos](#Script-empleados,productos)*
+```sql
+create or replace trigger ingresaempleados
+before insert
+on empleados
+for each row
+  begin
+    insert into control values( user, sysdate);
+end ingresaempleados;
+```
+Ingresamos un dato y miramos la tabla de control
+```sql
+INSERT INTO empleados VALUES('12345678','Rios','Juan','San luis','Cobros',5000,to_date('16/02/2022','dd/mm/yyyy'));
+
+SELECT * FROM control;
+```
+-Ejemplo 2 `FOR EACH ROW / BEFORE INSERT` ([Script BD Libros](#Script-BD-Libros))
+
+```sql
+create or replace trigger auditoria_libros 
+before insert 
+on libros 
+for each row  --por cada linea 
+  begin 
+    insert into auditoria_libros values (user, sysdate); 
+end auditoria_libros; 
+```
+Ingresamos un dato y miramos la tabla de control
+```sql
+INSERT INTO libros (idlibro,codigo,titulo,autor,precio,fecha)
+    SELECT aumentarlibro.NEXTVAL,
+        round(dbms_random.value(0, 9999)),
+        'Titulo ' || to_char(aumentarlibro.CURRVAL),           
+        'Autor ' || to_char(aumentarlibro.CURRVAL),
+        round(dbms_random.value(0, 3000000)),
+        to_date('2021/'
+                || round(dbms_random.value(1, 12))
+                || '/'
+                || round(dbms_random.value(1, 27))
+                || ' 21:02:44', 'yyyy/mm/dd hh24:mi:ss')
+    FROM dual
+    CONNECT BY level <= 100;
+
+
+
+SELECT * FROM auditoria_libros;
+```
+
+-Ejemplo  `MÚLTIPLES EVENTOS` [Script empleados,productos](#Script-empleados,productos)*
+```sql
+CREATE OR REPLACE TRIGGER tr_control_empleados BEFORE
+    INSERT OR UPDATE OR DELETE ON empleados
+BEGIN
+    IF inserting THEN
+        INSERT INTO control_empleados VALUES (
+            user,
+            sysdate,
+            'ingreso'
+        );
+
+    END IF;
+    IF deleting THEN
+        INSERT INTO control_empleados VALUES (
+            user,
+            sysdate,
+            'borrado'
+        );
+
+    END IF;
+    IF updating THEN
+        INSERT INTO control_empleados VALUES (
+            user,
+            sysdate,
+            'actualizacion'
+        );
+
+    END IF;
+END tr_control_empleados;
+```
+Ingresamos datos y probamos
+```sql
+INSERT INTO empleados VALUES('12345678','Rios','Juan','San luis','Cobros',5000,to_date('16/02/2022','dd/mm/yyyy'));
+
+UPDATE empleados set sueldo=2000 WHERE documento=12345678;
+
+DELETE FROM empleados WHERE documento=12345678;
+
+SELECT * FROM control_empleados;
+```
+
+### TRIGGERS `:NEW :OLD`
+*   Con OLD.nombre_columna referenciamos:
+    *   al valor que tenía la columna antes del cambio debido a una modificación
+(UPDATE)
+    *   al valor de una columna antes de una operación de borrado sobre la misma
+(DELETE)
+    *   al valor NULL para operaciones de inserción (INSERT)
+
+*   Con NEW.nombre_columna referenciamos:
+    *   Al valor de una nueva columna después de una operación de inserción
+(INSERT)
+    *   Al valor de una columna después de modificarla mediante una sentencia de
+modificación (UPDATE)
+    *   Al valor NULL para una operación de borrado (DELETE)
+
+
+-Ejemplo  ` :NEW ` ([Script BD Libros](#Script-BD-Libros))
+```sql
+CREATE OR REPLACE TRIGGER tr_ingresalibros
+BEFORE INSERT
+ON libros
+FOR EACH ROW
+BEGIN
+ IF(:new.precio<=30) THEN
+   INSERT INTO ofertas VALUES(:NEW.codigo, :NEW.precio, user, sysdate);
+   END IF;
+   END tr_ingresalibros;
+```
+Lenamos datos para que se active el trigger y miramos la tabla ofertas
+```sql
+INSERT INTO libros VALUES(aumentarlibro.NEXTVAL,'1','Planeta','Richard Bach',35,to_date('2021/2/20 21:02:44', 'yyyy/mm/dd hh24:mi:ss'));
+INSERT INTO libros VALUES(aumentarlibro.NEXTVAL,'120','Rusia','Ataque a Ucrania',25,to_date('2011/2/20 21:02:44', 'yyyy/mm/dd hh24:mi:ss'));
+
+SELECT * FROM ofertas;
+```
+
+-Ejemplo  ` :OLD`
+```sql
+CREATE OR REPLACE TRIGGER tr_actualizalibros
+BEFORE UPDATE OF precio
+ON libros
+FOR EACH ROW
+BEGIN
+IF(:OLD.precio<=30) AND (:NEW.precio>30) THEN
+DELETE FROM ofertas WHERE codigo=:OLD.codigo;
+END IF;
+ IF(:OLD.precio>30) AND (:NEW.precio<=30) THEN
+ INSERT INTO ofertas VALUES(:NEW.codigo, :NEW.precio, user, sysdate);
+ END IF;
+END tr_actualizalibros;
+```
+Actualizamos datos para que se active el trigger y miramos la tabla ofertas
+```sql
+UPDATE libros SET precio = 29 WHERE codigo =1; --El precio anterior era de 35
+
+SELECT * ofertas;
+```
+
+### Elevar `Excepciones` en el cuerpo del Disparados
+```sql
+RAISE_APPLICATION_ERROR (número_error, mensaje);
+```
+Número error en el rango: [-20000 y -20999]
+```sql
+CREATE OR REPLACE TRIGGER Ejemplo
+    BEFORE DELETE ON tabla
+    FOR EACH ROW
+BEGIN
+    IF :OLD.columna= valor_no_borrable THEN
+    RAISE_APPLICATION_ERROR(-20000,‘La fila no se puede borrar’);
+    END IF;
+    ...
+END ejemplo;
+/
+```
+
+
+#
+[🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Funciones**
 
@@ -229,7 +614,7 @@ BEGIN
 END;
 ```
 
-### -Ejemplo 1
+##### -Ejemplo 1
 ```sql
 create or replace function f_prueba(valor number)
 return number
@@ -243,7 +628,7 @@ Prueba de la función
 select f_prueba(2) as total from dual;
 ```
 
-### -Ejemplo 2
+##### -Ejemplo 2
 ```sql
 create or replace function f_costo(valor number)
 return varchar
@@ -265,7 +650,9 @@ select titulo, autor, precio, f_costoso(precio) from libros;
 
 
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Reglas y Convenciones del Lenguaje**
 ## Unidades Léxicas:
@@ -282,17 +669,19 @@ select titulo, autor, precio, f_costoso(precio) from libros;
 *   Los identificadores constan de una letra, seguida por una secuencia opcional de caracteres, que pueden incluir letras, números, signos de dólar **($)**, caracteres de subrayado **(_)** y símbolos de numero **(#)**. Los demás caracteres no pueden emplearse.
 *   La longitud máxima de un identificador es de 30 caracteres y todos los caracteres son significativos.
 #
-### Ejemplos Validos
+#### Ejemplos Validos
 
 `X, V_ENAME, CodEmp, V1, V2_, ES_UNA_VARIABLE_#, V_$_Cod
 – Variables`
 
-### Ejemplos **MAL** declaradas
+#### Ejemplos **MAL** declaradas
 
 `X+Y , _ENAME, Cod Emp, 1V, ESTA ES …. VARIABLE (+ de 30 caracteres)`
 
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Delimitadores**
 
@@ -316,7 +705,9 @@ select titulo, autor, precio, f_costoso(precio) from libros;
 |\<tab>|Carácter de tabulación|\<cr>|Retorno de carro|
 
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Variables**
 
@@ -361,7 +752,7 @@ identificador tipo_dato NOT NULL:= valor;
 *   **Rowid**
     *   **ROWID** Este tipo de dato sirve para almacenar identificadores únicos de registros. Este identificador es con el que trabaja internamente la base de datos Oracle para identificar dichos registros.
 
-## -Ejemplo
+##### -Ejemplo
 
 ```sql
 DECLARE
@@ -379,13 +770,15 @@ dbms_output.put_line('El nombre del usuario es: ' || nombre);
 END;
 ```
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Constantes**
 
 Una constante en PL/SQL hace la misma función de una variable solo que se le coloca una palabra clave **constant** frente a cada delcaración de variable, la particularidad de una constante es que su valor no cambia a medida que se ejecuta el programa en PL/SQL por lo que no permiten que su valor sea cambiado.
 
-## -Ejemplo
+#### -Ejemplo
 
 ```sql
 declare
@@ -397,7 +790,9 @@ begin
 end;
 ```
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Atributos %TYPE y %ROWTYPE**
 
@@ -412,7 +807,7 @@ Permite declarar una variable basada en:
     *   La tabla y la columna de la base de datos
     *   El nombre de la variable definida con anterioridad
 
-## -Ejemplo
+#### -Ejemplo
 
 ```sql
 v_cliente clientes.cliente%TYPE;
@@ -429,7 +824,7 @@ Se utiliza para declarar un Record que contenga toda la fila de una tabla o vist
     *   La tabla y la columna de la base de datos
     *   El nombre de la variable definida con anterioridad
 
-## -Ejemplo
+#### -Ejemplo
 
 ```sql
 DECLARE
@@ -444,7 +839,9 @@ END;
 /
 ```
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **REGISTROS**
 
@@ -455,7 +852,7 @@ Sintaxis:
 ```sql
 TYPE nombre_registro IS RECORD (declaración_campo [, declaración_campo] ...);
 ```
-## -Ejemplo
+#### -Ejemplo
 
 ```sql
 TYPE R_registro IS RECORD (
@@ -464,7 +861,9 @@ nombre clientes.nombre_corto%TYPE,
 clase clientes.clase_cliente%TYPE);
 ```
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Transacción Savepoint, Rollback y Commit**
 
@@ -488,7 +887,7 @@ SINTAXIS:
 SAVEPOINT identificador;
 ```
 
-## -Ejemplo:
+#### -Ejemplo:
 ```sql
 UPDATE T_PEDIDOS
 SET NOMBRE='jorge'
@@ -509,7 +908,9 @@ COMMIT;
 ```
 Solo guardamos la primera modificación.
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Tablas PL/SQL**
 
@@ -519,7 +920,7 @@ Solo guardamos la primera modificación.
 *   Aumentan dinámicamente porque no tienen restricciones.
 *   Se almacenan en memoria.
 
-## -Ejemplo 1
+#### -Ejemplo 1
 
 ```sql
 DECLARE
@@ -550,7 +951,7 @@ END;
 |`NEXT BINARY_INTEGER`|Devuelve el índice de la fila de la tabla que sigue a la fila especificada. V_Tabla.Next -> índice siguiente|
 |`PRIOR BINARY_INTEGER`|Devuelve el índice de la fila de la tabla que antecede a la fila especificada, V_Tabla.Prior -> índice anterior|
 
-## -Ejemplo 2
+#### -Ejemplo 2
 
 ```sql
 DECLARE
@@ -578,7 +979,9 @@ END;
 /
 ```
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Operadores lógicos pl/sql**
 
@@ -592,7 +995,9 @@ END;
 |`OR`|Inclusión|
 
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Condicionales**
 
@@ -610,7 +1015,7 @@ que la condición es falsa.
 *   IF-THEN-ELSE
 *   IF-THEN-ELSIF
 
-## -Ejemplo 1
+#### -Ejemplo 1
 ```SQL
 DECLARE
   a number(2):=10;
@@ -623,7 +1028,7 @@ BEGIN
    end if;
 END;
 ```
-## -Ejemplo 2
+#### -Ejemplo 2
 ```SQL
 DECLARE
   numero number(3):=100;
@@ -641,7 +1046,9 @@ BEGIN
 END;
 ```
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Bucles (LOOPS)**
 
@@ -679,7 +1086,7 @@ END;
         END LOOP;
     END LOOP;
     ```
-### -Ejemplo 1 LOOP
+##### -Ejemplo 1 LOOP
 
 ```SQL
 begin
@@ -693,7 +1100,7 @@ begin
     dbms_output.put_line('Valor final =' || valor);
 END;
 ```
-### -Ejemplo 2 LOOP-EXIT
+##### -Ejemplo 2 LOOP-EXIT
 
 ```SQL
 DECLARE
@@ -707,7 +1114,7 @@ BEGIN
     END LOOP;
 END;
 ```
-### -Ejemplo 3 WHILE
+##### -Ejemplo 3 WHILE
 
 ```SQL
 DECLARE
@@ -719,7 +1126,7 @@ DECLARE
     END LOOP;
  END;
 ```
-### -Ejemplo 4 FOR
+##### -Ejemplo 4 FOR
 
 ```SQL
 DECLARE
@@ -730,7 +1137,7 @@ BEGIN
   END LOOP;
 END;
 ```
-### -Ejemplo 5 BUCLES ANIDADOS
+##### -Ejemplo 5 BUCLES ANIDADOS
 
 ```SQL
 DECLARE
@@ -754,7 +1161,9 @@ END;
 ```
 
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Expresiones CASE**
 
@@ -776,7 +1185,7 @@ END CASE;
 ```
 No existe límite para el número de expresiones que se pueden definir en una expresión CASE.
 
-### -Ejemplo 1
+##### -Ejemplo 1
 
 ```SQL
 DECLARE
@@ -797,7 +1206,7 @@ BEGIN
 END;
 /
 ```
-### -Ejemplo 2
+##### -Ejemplo 2
 
 ```SQL
 CASE
@@ -813,7 +1222,9 @@ END CASE;
 /
 ```
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **GOTO y etiquetas**
 
@@ -824,7 +1235,7 @@ Su sintaxis es:
 GOTO <Etiqueta>;
 ```
 donde <Etiqueta> es una etiqueta definida en el bloque PL/SQL.
-### -Ejemplo
+##### -Ejemplo
 
 ```SQL
 BEGIN
@@ -842,7 +1253,9 @@ Para hacer más legible el bloque de ejecución con manejadores de excepciones c
 *   No se puede saltar al interior de un bucle
 *   No se puede saltar al interior de una orden IF
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Cursores**
 
@@ -878,7 +1291,7 @@ CURSOR nombre_cursor IS sentencia_select;
 *   Si es necesario procesar filas en algún orden, incluya la cláusula ORDER BY.
 *   El nombre del cursor es un identificador PL/SQL, y ha de ser declarado en la sección declarativa del bloque antes de poder hacer referencia a él.
 
-### -Ejemplo de delcaración
+##### -Ejemplo de delcaración
 ```sql
 DECLARE
 
@@ -900,10 +1313,11 @@ Codigo incial para el ejemplo*
 ```sql
 DROP TABLE empleados;
 DROP TABLE productos;
+DROP TABLE control_empleados;
 ```
 ```sql
  CREATE TABLE empleados(
-  documento CHAR(8),
+  documento CHAR(10),
   apellido VARCHAR2(30),
   nombre VARCHAR2(30),
   domicilio VARCHAR2(30),
@@ -916,6 +1330,11 @@ codigo INT NOT NULL PRIMARY KEY,
 nombre VARCHAR2(100) NOT NULL,
 precio NUMBER(6,2) NOT NULL,
 codigo_fabricante INT NOT NULL);
+
+CREATE TABLE control_empleados(
+usuario VARCHAR2(20),
+fecha DATE,
+accion VARCHAR(20));
 ```
 ```sql
  INSERT INTO empleados VALUES('22222222','Acosta','Ana','Avellaneda 11','Secretaria',1800,to_date('18/10/1980','dd/mm/yyyy'));
@@ -936,7 +1355,7 @@ INSERT INTO productos VALUES(9, 'Portátil Ideapd 320', 444, 2);
 INSERT INTO productos VALUES(10, 'Impresora HP Deskjet 3720', 59.99, 3);
 INSERT INTO productos VALUES(11, 'Impresora HP Laserjet Pro M26nw', 180, 3);
 ```
-### -Ejemplo `CURSORES IMPLICITOS`
+##### -Ejemplo `CURSORES IMPLICITOS`
 Cursor
 ```sql
 DECLARE
@@ -955,7 +1374,7 @@ END;
 
 #
 
-### -Ejemplo `CURSORES EXPLICITOS`
+##### -Ejemplo `CURSORES EXPLICITOS`
 ```sql
 DECLARE
     v_docu empleados.documento%TYPE;
@@ -976,7 +1395,7 @@ BEGIN
   dbms_output.put_line('Sueldo: '||v_suel);
 END;
 ```
-### -Ejemplo `CURSORES EXPLICITOS` 2
+##### -Ejemplo `CURSORES EXPLICITOS` 2
 A medida que vaya recorriendo toda la tabal de empleados, va a ir tomando 
 cada campo de la tabla y a través de unasalida de datos, va a tomar nuestra variable de `%ROWTYPE`.campo_tabla que se visualice en la salida de datos.
 
@@ -1001,7 +1420,7 @@ BEGIN
 END;
 ```
 
-### -Ejemplo `CURSORES EXPLICITOS` ACTUALIZANDO DATOS DE UNA TABLA SQL
+##### -Ejemplo `CURSORES EXPLICITOS` ACTUALIZANDO DATOS DE UNA TABLA SQL
 *   Cursor que nos permita recorrer todos los registros de una tabla y que nos muestre los datos por consola
 
 ```sql
@@ -1013,7 +1432,7 @@ BEGIN
  END IF;
 END;
 ```
-### -Ejemplo `FOR UPDATE Y WHERE CURRENT OF`
+##### -Ejemplo `FOR UPDATE Y WHERE CURRENT OF`
 ### FOR UPDATE
 *   El bloqueo explícito le permite denegar el acceso mientras dura una transacción.
 *   Bloquee las filas antes de la actualización o supresión.
@@ -1055,7 +1474,7 @@ COMMIT;
 END;
 /
 ```
-### -Ejemplo `CURSORES EXPLICITOS CON PARAMETROS`
+##### -Ejemplo `CURSORES EXPLICITOS CON PARAMETROS`
 ```sql
 DECLARE
     v_nom empleados.nombre%TYPE;
@@ -1077,7 +1496,7 @@ BEGIN
     CLOSE c_empleados;
 END;
 ```
-### -Ejemplo `REF CURSORS`
+##### -Ejemplo `REF CURSORS`
 *   Puede apuntar o hacer refrencia a un resultado de un cursor normal
 ```sql
 create or replace function f_datoemepleados (v_valor1 in number, v_valor2 in number)
@@ -1101,7 +1520,9 @@ exec :rc1:=f_datoemepleados(22222222,23333333);
 print rc1;
 ```
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Variables compuestas**
 Guardan una fila de una tabla
@@ -1119,7 +1540,7 @@ BEGIN
 END;
 ```
 
-### -Ejemplo `VARIABLE COMPUESTA CON CURSOR`
+##### -Ejemplo `VARIABLE COMPUESTA CON CURSOR`
 *   Puede apuntar o hacer refrencia a un resultado de un cursor normal
 ```sql
 declare
@@ -1136,7 +1557,9 @@ begin
 end;
 ```
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Paquetes**
 Son un grupo lógico de objetos de la base de datos tales como:
@@ -1150,6 +1573,13 @@ Son un grupo lógico de objetos de la base de datos tales como:
 
 Estos objetos se relacionan entre sí, encapsulados y convertidos en una unidad dentro de la base de datos.
 
+Ámbito para los paquetes
+*   Cualquier objeto declarado en la cabecera de un paquete está dentro de ámbito y es visible fuera del paquete, sin más que cualificar el objeto con el nombre del paquete.
+*   La llamada al procedimiento es igual que si fuera un procedimiento independiente. La única diferencia es que hay que incluir como prefijo el nombre del paquete.
+•Los procedimientos empaquetados pueden tener parámetros predeterminados, y pueden ser llamados utilizando notación posicional o nominal (indicando el valor para cada parámetro parametro1=>Variable1), al igual que los procedimientos almacenados independientes.
+*   Dentro del cuerpo del paquete se puede hacer referencia a los objetos definidos en la cabecera sin necesidad de utilizar el nombre del paquete.
+
+-Ejemplo
 ```sql
 CREATE OR REPLACE PACKAGE los_productos AS
 PROCEDURE caracteristicas(v_codigo productos.codigo%TYPE);
@@ -1174,7 +1604,188 @@ BEGIN
 END;
 ```
 
+#### Sobrecarga de los subprogramas de un paquete
+Dentro de un paquete pueden sobrecargarse los procedimientos y funciones, es decir, puede haber más de un procedimiento o función con el mismo nombre, pero con distintos parámetros.
+
+Esta característica es muy útil, dado que permite aplicar la misma operación a objetos de tipos diferentes.
+
+Ejemplo:
+
+Supongamos que queremos añadir un estudiante a una clase, bien especificando el número de identificación del estudiante, bien especificando el nombre y apellidos:
+```sql
+CREATE OR REPLACE PACKAGE PaqueteCurso AS
+PROCEDURE EstudianteNuevo (P_ID_Estudiante IN Estudiantes.ID%TYPE,
+                            P_Departamento IN CLASES.DEPARTMENTO%TYPE,
+                            P_Curso IN CLASES.Curso%TYPE);
+PROCEDURE EstudianteNuevo (P_Nombre IN Estudiantes.Nombre%TYPE,
+                            P_Apellidos IN Estudiantes.Apellidos%TYPE,
+                            P_Departamento IN CLASES.DEPARTMENTO%TYPE,
+                            P_Curso IN CLASES.Curso%TYPE);
+END PaqueteCurso;
+```
+```sql
+CREATE OR REPLACE PACKAGE PaqueteCurso BODY AS
+PROCEDURE EstudianteNuevo (P_ID_Estudiante IN Estudiantes.ID%TYPE,
+P_Departamento IN Clases.Departamento%TYPE,
+P_Curso IN Clases.Curso%TYPE) IS
+BEGIN
+INSERT INTO Estudiantes_Matriculados (Id_Estudiante, Departamento, Curso)
+VALUES ( P_ID_Estudiante, P_Departamento, P_Curso);
+COMMIT;
+END;
+PROCEDURE EstudianteNuevo (P_Nombre IN Estudiantes.Nombre% TYPE,
+P_Apellidos IN Estudiantes.Apellidos%TYPE,
+P_Departamento IN Clases.Departamento%TYPE,
+P_Curso IN Clases.Curso%TYPE) IS DECLARE
+    v_id_estudiante estudiantes.id%TYPE;
+BEGIN
+    SELECT ID INTO v_id_estudiante
+    FROM estudiantes
+    WHERE nombre = p_nombre AND apellidos = p_apellidos;
+
+    INSERT INTO estudiantes_matriculados (id_estudiante,
+                                          departamento,
+                                          curso)
+        VALUES (v_id_estudiante,p_departamento,p_curso);
+    COMMIT;
+END estudiantenuevo;
+END PaqueteCurso;
+```
+Con esto podremos añadir un estudiante a la clase de dos formas:
+
+Primera opción:
+```sql
+BEGIN
+    PaqueteCurso.EstudianteNuevo (10000, ‘ORA’,150);
+END;
+```
+Segunda opción:
+```sql
+BEGIN
+    PaqueteCurso.EstudianteNuevo (‘JAVIER’, ‘LOPEZ’ ,‘ORA’ ,150);
+END;
+```
+
+La sobrecarga puede ser muy útil cuando se pueda hacer la misma operación con argumentos de tipos diferentes. Sin embargo, la sobrecarga está sujeta a diversas restricciones.
+*   No se puede sobrecargar dos subprogramas si sus parámetros sólo difieren
+en el nombre o en el modo.
+*   No pueden sobrecargarse dos funciones basándose sólo en su tipo de retorno.
+*   Finalmente, los parámetros de las funciones sobrecargadas deben diferir también en cuanto a familia de tipos, no pudiendo realizarse sobrecargas dentro de la misma familia. Por ejemplo, CHAR y VARCHAR2, que pertenecen a la misma familia de tipos.
+
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
+
+
+### **Excepciones**
+*   Es un identificador PL/SQL que surge durante la ejecución.
+*   Se produce por un error Oracle o bien puede ser provocada explícitamente.
+*   Se gestiona interrumpiendo con un manejador de excepciones o propagándola al entorno de llamadas
+
+### Las excepciones
+*   Son declaradas en la sección de declaración.
+*    Son lanzadas en la seccion de ejecución y resueltas en la sección de excepciones.
+
+Sintaxis:
+
+```sql
+EXCEPTION
+   WHEN excepcióni [OR excepción2 ..] THEN
+         sentencias;
+  [WHEN excepción3 [OR excepción4 ..] THEN
+         sentencias; ]
+  [WHEN OTHERS THEN
+         sentencias; ]
+```
+| NOMBRE DE LA EXCEPCIÓN | NÚMERO DE ERROR ORACLE | DESCRIPCIÓN |
+|:----------------------:|:----------------------:|:-----------:|
+|**NO_DATA_FOUND**|ORA-01403|La sentencia `SELECT` no devolvió datos.|
+|**TOO_MANY_ROWS**|ORA-01422|La sentencia `SELECT` devolvió más de una fila.|
+|**INVALID_CURSOR**|ORA-01001|Se produjo una operación de cursor ilegal.|
+|**ZERO_DIVIDE**|ORA-01476|Se intentó dividir entre cero.|
+|**DUP_VAL_ON_INDEX**|ORA-00001|Se intentó insertar un valor duplicado.|
+|**INVALID_NUMBER**|ORA-01722|Falla la conversión de una cadena de caracteres a números.|
+
+##### -Ejemplo SINTAXIS `WHEN OTHERS THEN`
+```sql
+BEGIN
+  SELECT ......
+EXCEPTΠΟΝ
+  WHEN NO_DATA_FOUND THEN
+      sentencias;
+      DBMS OUTPUT.PUT LINE ('Excepción NO_DATA_FOUND');
+  WHEN TOO_MANY_ROWS THEN
+      sentencias;
+  WHEN OTHERS THEN
+      sentencias para las demás excepciones no tratadas;
+END;
+```
+
+#### Excepciones de usuario
+*   Se declaran en la sección declarativa `DECLARE`.
+*   Se provocan explícitamente en la sección ejecutable utilizando la sentencia `RAISE`.
+*   Se gestiona la excepción dentro del bloque de excepciones `EXCEPTION`.
+##### -Ejemplo `EXCEPCIONES DE USUARIO`
+```sql
+DECLARE
+      mi_excepción EXCEPTION;
+BEGIN
+      RAISE mi_excepción;
+ΕXCEPTION
+    WHEN mi_excepción THEN
+        sentencias;
+    END;tencias para las demás excepciones no tratadas;
+END;
+```
+
+#### Identificar Excepciones
+*   `SQLCODE`: Devuelve el valor numérico del código de error SQL. No se puede referenciar directamente, hay que asignarlo a una variable PL/SQL de tipo NUMBER.
+*   `SQLERRM`: Devuelve el mensaje asociado con el número de error. Tipo VARCHAR2.
+
+| VALOR DE `SQLCODE` | DESCRIPCIÓN |
+|:------------------:|:-----------:|
+|`0`|No se encontró ninguna excepción|
+|`1`|Excepción definida por el usuario|
+|`+100`|Excepción NO_DATA_FOUND|
+|`Negativo`|Otro número de error del Servidor Oracle|
+
+##### -Ejemplo `FUNCIONES PARA IDENTIFICAR EXCEPCIONES`
+```sql
+WHEN OTHERS THEN
+    v_codigo_error:=SQLCODE;
+    v_texto_error:=SUBSTR(SQLERRM,1,200);
+    INSERT INTO Tabla_Log
+        VALUES (v_codigo_error, v_texto_error);
+```
+#### RAISE_APPLICATION_ERROR
+*   Utilice el procedimiento RAISE_APPLICATION_ERROR para comunicar de forma interactiva una excepción predefinida, devolviendo un código y un mensaje de error no estándar.
+
+Sintaxis:
+```sql
+RAISE_APPLICATION_ERROR (número_de_error,
+        mensaje [, {TRUE | FALSE}]);
+```
+
+*   Se utiliza en dos lugares distintos:
+    *   SECCIÓN EJECUTABLE
+    *   SECCIÓN DE EXCEPCIONES
+##### -Ejemplo `FUNCIONES PARA IDENTIFICAR EXCEPCIONES`
+```sql
+EXCEPTION
+  WHEN NO DATA_FOUND THEN
+      RAISE_APPLICATION_ERROR (-20201, 'No existen registros');
+END;
+BEGIN
+  IF SQL%NOTFOUND THEN
+    RAISE_APPLICATION_ERROR (-20201, 'No existen registros');
+  END IF;
+END;
+```
+
+
+#
+[🔝 Volver al índice](#índice-de-contenido)
+#
 
 ### **Otros**
 
@@ -1231,4 +1842,6 @@ alter system set LOCAL_LISTENER='(ADDRESS=(PROTOCOL=TCP)(HOST=localhost)(PORT=15
 alter system register;
 ```
 
+#
 [🔝 Volver al índice](#índice-de-contenido)
+#
