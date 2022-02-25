@@ -15,8 +15,8 @@
 *   [Estructura de Procedimiento](#Estructura-de-Procedimiento)
 
 *   [Triggers o Disparadores](#Triggers-o-Disparadores)
-    *   [TRIGGERS `:NEW :OLD`](#TRIGGERS-:NEW-:OLD)
-    *   [Elevar `Excepciones` en el cuerpo del Disparados](#Elevar-Excepciones-en-el-cuerpo-del-Disparados)
+    *   [TRIGGERS :NEW :OLD](#TRIGGERS-:NEW-:OLD)
+    *   [Elevar Excepciones en el cuerpo del Disparados](#Elevar-Excepciones-en-el-cuerpo-del-Disparados)
 
 *   [Funciones](#Funciones)
 
