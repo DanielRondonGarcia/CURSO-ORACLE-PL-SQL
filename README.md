@@ -61,6 +61,7 @@
     *  [*Sentencia `ALTER TABLE`*](#sentencia-alter-table)
     *  [*Sentencia `DROP TABLE`*](#sentencia-drop-table)
     *  [*Sentencia `RENAME TABLE`*](#sentencia-rename-table)
+    *  [*Sentencia `INSERT`*](#sentencia-insert)
 
 *   [Otros](#Otros)
 
@@ -1856,6 +1857,23 @@ Structured Query Language, establecido como el lenguaje de base de datos relacio
    ```SQL
    RENAME nombre_viejo TO nuevo_nombre;
    ```
+   *  ### *Sentencia `INSERT`*
+   Mediante esta sentencia sólo se inserta un registro cada vez.Q
+   ```SQL
+   INSERT INTO tabla [(columna [, columna...])]
+   VALUES (valor [, valor...]);
+   ```
+   *  ### *Sentencia `UPDATE`*
+   -  Los registros a modificar se especifican por medio de la cláusula WHERE.
+   -  Si se omite WHERE se modificarían todos los registros de la tabla.
+   ```SQL
+   UPDATE tabla
+   SET columna valor [, columna = valor] 
+   [WHERE condición];
+   ```
+   - Ejemplo `Modificación con subconsultas`
+   Modificar el tipo_id y clase_cliente del cliente 2222222222, con los valores correspondientes actualmente al cliente 5555555555:
+   ![image](https://user-images.githubusercontent.com/61068392/156064697-8d9dd47a-c4fb-40b5-9ec7-5f4d902eafc2.png)
    
 #
 [🔝 Volver al índice](#índice-de-contenido)
