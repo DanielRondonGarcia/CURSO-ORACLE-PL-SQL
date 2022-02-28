@@ -36,7 +36,7 @@
 
 *   [Tablas PL/SQL](#tablas-plsql)
 
-*   [Operadores lógicos pl/sql](#Operadores-lógicos-pl/sql)
+*   [Operadores lógicos pl/sql](#operadores-lógicos-plsql)
 
 *   [Condicionales](#Condicionales)
 
