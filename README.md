@@ -1791,12 +1791,14 @@ END;
 #
 
 ### **Conceptos importantes de SQL**
-*  ### *CARDINALIDAD DE LAS RELACIONES*
-   1. Relación uno a uno.
-   2. Relación uno a varios (n).
-   3. Relación varios (n) a uno.
-   4. Relación varios a varios (n) - (n).
+   *  ### *CARDINALIDAD DE LAS RELACIONES*
+      1. Relación uno a uno.
+      2. Relación uno a varios (n).
+      3. Relación varios (n) a uno.
+      4. Relación varios a varios (n) - (n).
    
+   *  ### *Notaciones*
+   ![ORACLE PL/SQL](/Captura%20de%20pantalla%202022-02-28%20153447.png?raw=true)
    
 #
 [🔝 Volver al índice](#índice-de-contenido)
