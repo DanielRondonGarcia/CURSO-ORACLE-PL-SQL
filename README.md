@@ -54,6 +54,9 @@
 
 *   [Excepciones](#Excepciones)
 
+*   [Conceptos importantes de SQL](#Conceptos-importantes-de-SQL)
+   *  [*CARDINALIDAD DE LAS RELACIONES*](#CARDINALIDAD-DE-LAS-RELACIONES)
+
 *   [Otros](#Otros)
 
 
@@ -1787,6 +1790,19 @@ END;
 [🔝 Volver al índice](#índice-de-contenido)
 #
 
+### **Conceptos importantes de SQL**
+*  ###*CARDINALIDAD DE LAS RELACIONES*
+   1. Relación uno a uno.
+   2. Relación uno a varios (n).
+   3. Relación varios (n) a uno.
+   4. Relación varios a varios (n) - (n).
+   
+   
+#
+[🔝 Volver al índice](#índice-de-contenido)
+#  
+   
+   
 ### **Otros**
 
 ## Para poder ver la ejecucion en la pantalla
