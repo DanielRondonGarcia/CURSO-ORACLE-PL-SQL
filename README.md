@@ -63,6 +63,7 @@
     *  [*Sentencia `RENAME TABLE`*](#sentencia-rename-table)
     *  [*Sentencia `INSERT`*](#sentencia-insert)
     *  [*Sentencia `UPDATE`*](#sentencia-update)
+    *  [*FUNCIONES SQL*](#funciones-sql)
 
 *   [Otros](#Otros)
 
@@ -1882,6 +1883,32 @@ Structured Query Language, establecido como el lenguaje de base de datos relacio
                                     WHERE cliente = 5555555555
    WHERE cliente = 2222222222;
    ```
+   
+   *  ### *FUNCIONES SQL*
+   Existen dos tipos de funciones:
+   *  Funciones a nivel de fila
+      *  [*Caracter*](#funciones-de-caracteres)
+      *  Número
+      *  Fecha
+      *  [*Caracter*](#Funciones-de-conversión-de-caracteres)
+   *  Funciones a nivel de múltiples filas
+      *  Manipulan grupos de filas y devuelven un resultado por cada uno de ellos.
+   
+   *  ### *Funciones de `Caracteres`*
+   Funciones de manipulación de caracteres:
+   ```sql
+   CONCAT , SUBSTR , LENGTH , INSTR , LPAD Y RPAD
+   ```
+   
+   *  Funciones de `conversión` de `caracteres`*
+      *  LOWER: Convierte a minúsculas.
+      *  UPPER: Convierte a mayúsculas.
+      *  INITCAP: Convierte la primera letra de cada palabra en mayúsculas, y el resto en minúscula.
+   ```sql
+   LOWER , UPPER e INITCAP
+   ```
+   > :warning: **If you are using mobile browser**: Be very careful here!
+   
    
 #
 [🔝 Volver al índice](#índice-de-contenido)
