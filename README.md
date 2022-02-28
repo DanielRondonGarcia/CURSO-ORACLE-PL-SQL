@@ -57,6 +57,7 @@
 *   [Conceptos importantes de SQL](#Conceptos-importantes-de-SQL)
     *  [*CARDINALIDAD DE LAS RELACIONES*](#CARDINALIDAD-DE-LAS-RELACIONES)
     *  [*Notaciones*](#notaciones)
+    *  [*Sentencia `CREATE TABLE`*](#sentencia-create-table)
 
 *   [Otros](#Otros)
 
@@ -1817,7 +1818,7 @@ Structured Query Language, establecido como el lenguaje de base de datos relacio
    ![ORACLE PL/SQL](/Captura%20de%20pantalla%202022-02-28%20153447.png?raw=true)
    
    *  ### *Sentencia `CREATE TABLE`*
-   ```ddl
+   ```sql
    CREATE TABLE [schema.] tabla
    (columna tipo_de_dato [expr. por defecto]
    [,..]);
