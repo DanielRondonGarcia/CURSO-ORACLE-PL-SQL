@@ -40,7 +40,7 @@
 
 *   [Condicionales](#Condicionales)
 
-*   [Bucles (LOOPS)](#bucles-loops))
+*   [Bucles (LOOPS)](#bucles-loops)
 
 *   [Expresiones CASE](#Expresiones-CASE)
 
