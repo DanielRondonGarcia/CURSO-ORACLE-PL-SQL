@@ -1791,7 +1791,7 @@ END;
 #
 
 ### **Conceptos importantes de SQL**
-*  ###*CARDINALIDAD DE LAS RELACIONES*
+*  ### *CARDINALIDAD DE LAS RELACIONES*
    1. Relación uno a uno.
    2. Relación uno a varios (n).
    3. Relación varios (n) a uno.
