@@ -59,6 +59,8 @@
     *  [*Notaciones*](#notaciones)
     *  [*Sentencia `CREATE TABLE`*](#sentencia-create-table)
     *  [*Sentencia `ALTER TABLE`*](#sentencia-alter-table)
+    *  [*Sentencia `DROP TABLE`*](#sentencia-drop-table)
+    *  [*Sentencia `RENAME TABLE`*](#sentencia-rename-table)
 
 *   [Otros](#Otros)
 
@@ -1838,6 +1840,22 @@ Structured Query Language, establecido como el lenguaje de base de datos relacio
           [, columna tipo_de dato]...);
    ```
    
+   *  ### *Sentencia `DROP TABLE`*
+   -  Se borra estructura, datos e índices de la tabla. Borrado Físico.
+   -  No se puede hacer Rollback de la sentencia.
+   ```sql
+   DROP TABLE [schema.] tabla;
+   ```
+   ```SQL
+   DROP TABLE nombretabla CASCADE CONSTRAINTS;
+   ```
+   De esta manera se eliminarán todos los registros en otras relaciones que referencien a la clave primaria de la relación a ser eliminada. Si no se incluye el parámetro CASCADE CONSTRAINTS y existe alguna referencia a un registro que se eliminará, ORACLE retornará un mensaje de error y no eliminará la relación.
+   
+   *  ### *Sentencia `RENAME TABLE`*
+   Permite cambiar el nombre de una tabla, vista, secuencia o sinónimo.
+   ```SQL
+   RENAME nombre_viejo TO nuevo_nombre;
+   ```
    
 #
 [🔝 Volver al índice](#índice-de-contenido)
