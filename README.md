@@ -32,7 +32,7 @@
 
 *   [REGISTROS](#REGISTROS)
 
-*   [Transacción Savepoint, Rollback y Commit](#Transacción-Savepoint,-Rollback-y-Commit)
+*   [Transacción Savepoint, Rollback y Commit](#transacción-savepoint-rollback-y-commit)
 
 *   [Tablas PL/SQL](#Tablas-PL/SQL)
 
