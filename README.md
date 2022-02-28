@@ -58,6 +58,7 @@
     *  [*CARDINALIDAD DE LAS RELACIONES*](#CARDINALIDAD-DE-LAS-RELACIONES)
     *  [*Notaciones*](#notaciones)
     *  [*Sentencia `CREATE TABLE`*](#sentencia-create-table)
+    *  [*Sentencia `ALTER TABLE`*](#sentencia-alter-table)
 
 *   [Otros](#Otros)
 
@@ -1823,6 +1824,20 @@ Structured Query Language, establecido como el lenguaje de base de datos relacio
    (columna tipo_de_dato [expr. por defecto]
    [,..]);
    ```
+   
+   * ### *Sentencia `ALTER TABLE`*
+   Permite añadir nuevas columnas o modificar una ya existente.
+   ```sql
+   ALTER TABLE [schema.] tabla
+   ADD (columna tipo_de_dato [expr. defecto]
+       [, columna tipo_de dato]...);
+   ```
+   ```sql
+   ALTER TABLE [schema.] tabla
+   MODIFY (columna tipo_de_dato [expr. defecto]
+          [, columna tipo_de dato]...);
+   ```
+   
    
 #
 [🔝 Volver al índice](#índice-de-contenido)
