@@ -55,7 +55,7 @@
 *   [Excepciones](#Excepciones)
 
 *   [Conceptos importantes de SQL](#Conceptos-importantes-de-SQL)
-   *  [*CARDINALIDAD DE LAS RELACIONES*](#CARDINALIDAD-DE-LAS-RELACIONES)
+    *  [*CARDINALIDAD DE LAS RELACIONES*](#CARDINALIDAD-DE-LAS-RELACIONES)
 
 *   [Otros](#Otros)
 
