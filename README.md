@@ -62,6 +62,7 @@
     *  [*Sentencia `DROP TABLE`*](#sentencia-drop-table)
     *  [*Sentencia `RENAME TABLE`*](#sentencia-rename-table)
     *  [*Sentencia `INSERT`*](#sentencia-insert)
+    *  [*Sentencia `UPDATE`*](#sentencia-update)
 
 *   [Otros](#Otros)
 
@@ -1873,7 +1874,14 @@ Structured Query Language, establecido como el lenguaje de base de datos relacio
    ```
    - Ejemplo `Modificación con subconsultas`
    Modificar el tipo_id y clase_cliente del cliente 2222222222, con los valores correspondientes actualmente al cliente 5555555555:
-   ![image](https://user-images.githubusercontent.com/61068392/156064697-8d9dd47a-c4fb-40b5-9ec7-5f4d902eafc2.png)
+   ```sql
+   UPDATE cliente
+   SET (tipo_id, clase_cliente) = ( SELECT tipo_id 
+                                           clase_cliente
+                                    FROM cliente
+                                    WHERE cliente = 5555555555
+   WHERE cliente = 2222222222;
+   ```
    
 #
 [🔝 Volver al índice](#índice-de-contenido)
