@@ -34,7 +34,7 @@
 
 *   [Transacción Savepoint, Rollback y Commit](#transacción-savepoint-rollback-y-commit)
 
-*   [Tablas PL/SQL](#Tablas-PL/SQL)
+*   [Tablas PL/SQL](#tablas-plsql)
 
 *   [Operadores lógicos pl/sql](#Operadores-lógicos-pl/sql)
 
