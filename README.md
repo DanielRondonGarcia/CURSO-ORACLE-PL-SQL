@@ -4,7 +4,7 @@
 
 ## Índice de contenido
 
-*   [¿Qué es PL/SQL?](#¿Qué-es-PL/SQL?)
+*   [¿Qué es PL/SQL?](#qué-es-plsql)
 
 *   [Estructura](#Estructura)
 
