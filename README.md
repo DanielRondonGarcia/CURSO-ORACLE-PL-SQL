@@ -1792,6 +1792,21 @@ END;
 #
 
 ### **Conceptos importantes de SQL**
+
+Structured Query Language, establecido como el lenguaje de base de datos relacional estándar.
+
+#### Características de S.Q.L
+*  Lenguaje de definición de datos (DDL)
+   *  Create, Alter, Drop.
+*  Lenguaje de manipulación de datos (DML)
+   *  Insert, Update, Delete.
+*  Lenguaje de control de datos (DCL)
+   *  Grant, Revoke.
+*  Control de transacciones
+   *  Commit, Rollback, Savepoint
+*  Restricciones de integridad
+   *  Referencial, datos
+   
    *  ### *CARDINALIDAD DE LAS RELACIONES*
       1. Relación uno a uno.
       2. Relación uno a varios (n).
@@ -1800,6 +1815,13 @@ END;
    
    *  ### *Notaciones*
    ![ORACLE PL/SQL](/Captura%20de%20pantalla%202022-02-28%20153447.png?raw=true)
+   
+   *  ### *Sentencia `CREATE TABLE`*
+   ```ddl
+   CREATE TABLE [schema.] tabla
+   (columna tipo_de_dato [expr. por defecto]
+   [,..]);
+   ```
    
 #
 [🔝 Volver al índice](#índice-de-contenido)
