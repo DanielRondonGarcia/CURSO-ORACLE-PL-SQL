@@ -5,55 +5,8 @@
 ## Índice de contenido
 
 *   [¿Qué es PL/SQL?](#qué-es-plsql)
-
-*   [Estructura](#Estructura)
-
-*   [Estructura Bloques Anónimos](#Estructura-Bloques-Anónimos)
-
-*   [Secuencias](#Secuencias)
-
-*   [Estructura de Procedimiento](#Estructura-de-Procedimiento)
-
-*   [Triggers o Disparadores](#Triggers-o-Disparadores)
-    *   [TRIGGERS :NEW :OLD](#TRIGGERS-NEW-OLD)
-    *   [Elevar Excepciones en el cuerpo del Disparados](#Elevar-Excepciones-en-el-cuerpo-del-Disparados)
-
-*   [Funciones](#Funciones)
-
-*   [Reglas y Convenciones del Lenguaje](#Reglas-y-Convenciones-del-Lenguaje)
-
-*   [Delimitadores](#Delimitadores)
-
-*   [Variables](#Variables)
-
-*   [Constantes](#Constantes)
-
 *   [Atributos %TYPE y %ROWTYPE](#Atributos-TYPE-y-ROWTYPE)
-
-*   [REGISTROS](#REGISTROS)
-
-*   [Transacción Savepoint, Rollback y Commit](#transacción-savepoint-rollback-y-commit)
-
-*   [Tablas PL/SQL](#tablas-plsql)
-
-*   [Operadores lógicos pl/sql](#operadores-lógicos-plsql)
-
-*   [Condicionales](#Condicionales)
-
 *   [Bucles (LOOPS)](#bucles-loops)
-
-*   [Expresiones CASE](#Expresiones-CASE)
-
-*   [GOTO y etiquetas](#GOTO-y-etiquetas)
-
-*   [Cursores](#Cursores)
-
-*   [Variables compuestas](#Variables-compuestas)
-
-*   [Paquetes](#Paquetes)
-
-*   [Excepciones](#Excepciones)
-
 *   [Conceptos importantes de SQL](#Conceptos-importantes-de-SQL)
     *  [*CARDINALIDAD DE LAS RELACIONES*](#CARDINALIDAD-DE-LAS-RELACIONES)
     *  [*Notaciones*](#notaciones)
@@ -64,7 +17,29 @@
     *  [*Sentencia `INSERT`*](#sentencia-insert)
     *  [*Sentencia `UPDATE`*](#sentencia-update)
     *  [*FUNCIONES SQL*](#funciones-sql)
-
+*   [Condicionales](#Condicionales)
+*   [Constantes](#Constantes)
+*   [Cursores](#Cursores)
+*   [Delimitadores](#Delimitadores)
+*   [Estructura Bloques Anónimos](#Estructura-Bloques-Anónimos)
+*   [Estructura de Procedimiento](#Estructura-de-Procedimiento)
+*   [Estructura](#Estructura)
+*   [Excepciones](#Excepciones)
+*   [Expresiones CASE](#Expresiones-CASE)
+*   [Funciones](#Funciones)
+*   [GOTO y etiquetas](#GOTO-y-etiquetas)
+*   [Operadores lógicos pl/sql](#operadores-lógicos-plsql)
+*   [Paquetes](#Paquetes)
+*   [REGISTROS](#REGISTROS)
+*   [Reglas y Convenciones del Lenguaje](#Reglas-y-Convenciones-del-Lenguaje)
+*   [Secuencias](#Secuencias)
+*   [Tablas PL/SQL](#tablas-plsql)
+*   [Transacción Savepoint, Rollback y Commit](#transacción-savepoint-rollback-y-commit)
+*   [Triggers o Disparadores](#Triggers-o-Disparadores)
+    *   [TRIGGERS :NEW :OLD](#TRIGGERS-NEW-OLD)
+    *   [Elevar Excepciones en el cuerpo del Disparados](#Elevar-Excepciones-en-el-cuerpo-del-Disparados)
+*   [Variables compuestas](#Variables-compuestas)
+*   [Variables](#Variables)
 *   [Otros](#Otros)
 
 
