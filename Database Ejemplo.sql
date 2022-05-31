@@ -1,0 +1,218 @@
+DROP TABLE ciudades CASCADE CONSTRAINTS;
+DROP TABLE articulos CASCADE CONSTRAINTS:
+DROP TABLE clientes CASCADE CONSTRAINTS;
+DROP TABLE clientes_SUCURSAL CASCADE CONSTRAINTS;
+DROP TABLE facturas CASCADE CONSTRAINTS;
+DROP TABLE facturas_DETALLE CASCADE CONSTRAINTS;
+
+--1. Tabla ciudades
+CREATE TABLE ciudades
+ (CIUDAD    VARCHAR2(5) NOT NULL
+  ,NOMBRE   VARCHAR2(80)
+ );
+
+CREATE TABLE ciudades
+ (CIUDAD VARCHAR2(5)NOT NULL
+ ,NOMBRE VARCHAR2(80)NOT NULL
+ ,IND_CAPITAL VARCHAR2(1)NOT NULL
+ ,VALOR ENVIO NUMBER(15,2)
+);
+
+COMMENT ON COLUMN ciudades.CIUDAD IS'Código de ciudad';
+COMMENT ON COLUMN ciudades.NOMBRE IS'Nombre de la ciudad';
+COMMENT ON COLUMN ciudades.IND CAPITAL IS'Indicativo si la ciudad es capital';
+COMMENT ON COLUMN ciudades.VALOR_ENVIO IS'Valor del envio de los productosala ciudad';
+
+ALTER TABLE ciudades
+ADD(CONSTRAINT c_ciudades Pk PRIMARY KEY
+ (ciudad)
+USING INDEX
+);
+
+ALTER TABLE ciudades
+ ADD(CONSTRAINT c_ciudades_ind_capital_ch CHECK (IND_CAPITAL IN('S','N')));
+
+--2. Tabla articulos
+
+CREATE TABLE articulos
+ (ARTICULO NUMBER(10)NOT NULL
+ ,DESCRIPCION VARCHAR2(150)NOT NULL
+ ,COSTO VENTA NUMBER(15,2)NOT NULL
+ ,EXISTENCIAS NUMBER(10)NOT NULL
+ ,ULTIMO PROVEEDOR VARCHAR2(100)
+ ,OBSERVACION VARCHAR2(100)
+);
+
+COMMENT ON COLUMN articulos.ARTICULO IS 'Código del articulo';
+COMMENT ON COLUMN articulos.DESCRIPCION IS 'Descripcion del articulo';
+COMMENT ON COLUMN articulos.COSTO_VENTA IS 'Costo de venta del articulo';
+COMMENT ON COLUMN articulos.EXISTENCIAS IS 'Existencias del articulo en inventarios';
+COMMENT ON COLUMN articulos.ULTIMO_PROVEEDOR IS 'Ultimo proveedor del articulo';
+COMMENT ON COLUMN articulos.OBSERVACION IS 'Observaciones';
+
+ALTER TABLE articulos
+ ADD(CONSTRAINT c_articulos_pk PRIMARY KEY
+  (ARTICULO)
+ USING INDEX
+ );
+
+--3.Tabla clientes.
+
+CREATE TABLE clientes
+ (CLIENTE VARCHAR2(15)NOT NULL
+ ,RAZON SOCIAL VARCHAR2(150)NOT NULL
+ ,NOMBRE CORTO VARCHAR2(50)NOT NULL
+ ,TIPO_ID VARCHAR2(1)NOT NULL
+ ,CLASE_CLIENTE VARCHAR2(1)NOT NULL
+ ,FECHA CREACION DATE NOT NULL
+ ,OBSERVACION VARCHAR2(200)
+);
+
+COMMENT ON COLUMN clientes.CLIENTE IS 'Código del cliente';
+COMMENT ON COLUMN clientes.RAZON_SOCIAL IS 'Razon social del cliente';
+COMMENT ON COLUMN clientes.NOMBRE CORTO IS'Nombre corto del cliente';
+COMMENT ON COLUMN clientes.TIPO_ID IS'Tipo id clidente<C>:Cedula<N>:Nit';
+COMMENT ON COLUMN clientes.CLASE_CLIENTE IS'Calificacion,cliente<B>:Bueno<R>:Regular<M>:Malo';
+COMMENT ON COLUMN clientes.FECHA_CREACION IS'Fecha creacion del cliente';
+COMMENT ON COLUMN clientes.OBSERVACION IS'Observaciones al cliente';
+
+ALTER TABLE clientes
+ ADD(CONSTRAINT c_clientes_pk PRIMARY KEY
+  (CLIENTE)
+ USING INDEX
+ );
+
+ALTER TABLE clientes
+ADD(CONSTRAINT c_clientes_tipo_id_ch CHECK (TIPO_ID IN('C','N')));
+
+ALTER TABLE clientes
+ ADD(CONSTRAINT c_clientes_clase_cliente_ch CHECK (CLASE_CLIENTE IN('B','R','M')));
+
+--4. Tabla sucursal de los clientes
+
+CREATE TABLE clientes_SUCURSAL
+ (CLIENTE VARCHAR2(15)NOT NULL
+ ,SECUENCIA NUMBER(5)NOT NULL
+ ,ENCARGADO VARCHAR2(100)NOT NULL
+ ,CARGO_ENCARGADO VARCHAR2(150)NOT NULL
+ ,DIRECCION VARCHAR2(200)NOT NULL
+ ,TELEFONO VARCHAR2(50)NOT NULL
+ ,CELULAR VARCHAR2(50)NOT NULL
+ ,CIUDAD VARCHAR2(5)NOT NULL
+ ,SUC_PRINCIPAL VARCHAR2(1)NOT NULL
+ ,OBSERVACION VARCHAR2(150)
+);
+
+
+COMMENT ON COLUMN clientes_SUCURSAL.CLIENTE IS'Código del cliente';
+COMMENT ON COLUMN clientes_SUCURSAL.SECUENCIA IS'Secuencia de la sucursal del cliente';
+COMMENT ON COLUMN clientes_SUCURSAL.ENCARGADO IS'Nombre del encargado de la sucursal';
+COMMENT ON COLUMN clientes_SUCURSAL.CARGO_ENCARGADO IS'Cargo del encargado';
+COMMENT ON COLUMN clientes_SUCURSAL.DIRECCION IS'Direccion del encargado';
+COMMENT ON COLUMN clientes_SUCURSAL.TELEFONO IS'Telefono de la sucursal';
+COMMENT ON COLUMN clientes_SUCURSAL.CELULAR IS'Celular de la sucursal';
+COMMENT ON COLUMN clientes_SUCURSAL.CIUDAD IS'Ciudad de la sucursal';
+COMMENT ON COLUMN clientes_SUCURSAL.SUC_PRINCIPAL IS'Indicativo si es la sucursal principal';
+
+ALTER TABLE clientes_SUCURSAL
+ ADD(CONSTRAINT c_clientes_sucursal_pk PRIMARY KEY
+  (CLIENTE,SECUENCIA)
+ USING INDEX
+ );
+
+ALTER TABLE clientes_SUCURSAL
+    ADD(CONSTRAINT c_clientes_suc_suc_ppal_ch CHECK(SUC_PRINCIPAL IN('S','N')));
+
+ALTER TABLE clientes_SUCURSAL ADD(CONSTRAINT
+    FOREIGN KEY c_cli_cli_suc_clientes_fk
+        (CLIENTE)REFERENCES clientes
+        (CLIENTE));
+
+ALTER TABLE clientes_SUCURSAL ADD(CONSTRAINT
+    FOREIGN KEY c_ciu_cli_suc_ciudades_fk
+    (CIUDAD)REFERENCES ciudades
+    (CIUDAD));
+
+CREATE INDEX i_cli_suc_clientes_fk ON clientes_SUCURSAL
+ (CLIENTE);
+
+--5. Tabla de facturas
+
+CREATE TABLE facturas
+ (NRO FACTURA NUMBER(10)NOT NULL
+ ,CLIENTE VARCHAR2(15)NOT NULL
+ ,FECHA_FACTURA DATE NOT NULL
+ ,CLIENTE ENTREGA VARCHAR2(15)NOT NULL
+ ,SECUENCIA ENTREGA NUMBER(5)NOT NULL
+ ,CLIENTE FACTURA VARCHAR2(15)
+ ,SECUENCIA_FACTURA NUMBER(5)
+ ,VALOR_ENVIO NUMBER(15,2)NOT NULL
+ ,OBSERVACION VARCHAR2(200)
+ );
+
+COMMENT ON COLUMN facturas.NRO FACTURA IS'Nro de factura';
+COMMENT ON COLUMN facturas.CLIENTE IS'Codigo del cliente';
+COMMENT ON COLUMN facturas.FECHA_FACTURA IS'Fecha de factura';
+COMMENT ON COLUMN facturas.CLIENTE_ENTREGA IS'Código del cliente para entrega de pedido';
+COMMENT ON COLUMN facturas.SECUENCIA ENTREGA IS'Código de sucursal para entrega de pedido';
+COMMENT ON COLUMN facturas.CLIENTE FACTURA IS'Código del cliente para entrega de factura';
+COMMENT ON COLUMN facturas.SECUENCIA_FACTURA IS'Código de sucursal para entrega de facturas';
+COMMENT ON COLUMN facturas.VALOR_ENVIO IS'Valor de envio';
+COMMENT ON COLUMN facturas.OBSERVACION IS'Observaciones';
+
+ALTER TABLE facturas
+ADD (CONSTRAINT c_facturas_nro_factura_pk PRIMARY KEY
+  (NRO FACTURA)
+ USING INDEX
+);
+
+ALTER TABLE facturas ADD(CONSTRAINT
+ c_cli_facturas_cliente_fk FOREIGN KEY
+  (CLIENTE)REFERENCES Clientes
+  (CLIENTE));
+
+ALTER TABLE facturas ADD(CONSTRAINT
+ c_cli_suc_fac_cli_fa_se_fa_fk FOREIGN KEY
+  (CLIENTE_FACTURA,SECUENCIA_FACTURA)REFERENCES clientes_SUCURSAL
+  (CLIENTE, SECUENCIA));
+
+CREATE INDEX i_facturas_clientes_fk ON facturas
+ (CLIENTE);
+
+CREATE INDEX i_facturas_cl_en_se_en_fk ON facturas
+ (CLIENTE ENTREGA,SECUENCIA ENTREGA);
+
+CREATE INDEX i_facturas_cl_fa_se_fa_fk ON facturas
+ (CLIENTE FACTURA,SECUENCIA_FACTURA);
+
+-- 6. Tabla de detalle de la factura
+
+CREATE TABLE facturas_DETALLE
+ (NRO FACTURA NUMBER(10)NOT NULL
+ ,ARTICULO NUMBER(10)NOT NULL
+ ,CANTIDAD NUMBER(10)NOT NULL
+ ,VALOR NUMBER(15,2)NOT NULL
+ ,DESCUENTO NUMBER(5,2)NOT NULL
+);
+
+COMMENT ON COLUMN facturas_DETALLE.NRO FACTURA IS'Nro de factura';
+COMMENT ON COLUMN facturas_DETALLE.ARTICULO IS'Codigo del articulo';
+COMMENT ON COLUMN facturas_DETALLE.CANTIDAD IS'Cantidad de articulosafacturar';
+COMMENT ON COLUMN facturas_DETALLE.VALOR IS'Valor del articulo';
+COMMENT ON COLUMN facturas_DETALLE.DESCUENTO IS'Porcentaje de descuento otorgado';
+
+ALTER TABLE facturas_DETALLE
+ADD(CONSTRAINT c_facturas_det_nro_fa_art_pk PRIMARY KEY
+  (NRO FACTURA,ARTICULO)
+ USING INDEX
+);
+
+ALTER TABLE facturas_DETALLE ADD(CONSTRAINT
+    FOREIGN KEY c_facturas_fac_det_nro_fac_fk
+    (NRO FACTURA)REFERENCES facturas
+    (NRO FACTURA));
+
+ALTER TABLE facturas_DETALLE ADD(CONSTRAINT
+    c_articulos_fac_det_art_fk FOREIGN KEY
+    (ARTICULO)REFERENCES articulos
+    (ARTICULO));
